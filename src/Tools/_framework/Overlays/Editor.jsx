@@ -20,7 +20,7 @@ import {
   useRecoilStateLoadable, 
   useRecoilCallback
 } from "recoil";
-// import DoenetViewer from '../../../Tools/DoenetViewer';
+import DoenetViewer from '../../../Viewer/DoenetViewer';
 import {Controlled as CodeMirror} from 'react-codemirror2'
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/xml/xml';
@@ -492,21 +492,21 @@ function DoenetViewerPanel(){
   let solutionDisplayMode = "button";
 
   return null
-  // return <DoenetViewer
-  //     key={"doenetviewer" + viewerDoenetML?.updateNumber}
-  //     doenetML={viewerDoenetML?.doenetML}
-  //     flags={{
-  //       showCorrectness: true,
-  //       readOnly: false,
-  //       solutionDisplayMode: solutionDisplayMode,
-  //       showFeedback: true,
-  //       showHints: true,
-  //     }}
-  //     attemptNumber={attemptNumber}
-  //     assignmentId={assignmentId}
-  //     ignoreDatabase={false}
-  //     requestedVariant={requestedVariant}
-  //     /> 
+  return <DoenetViewer
+      key={"doenetviewer" + viewerDoenetML?.updateNumber}
+      doenetML={viewerDoenetML?.doenetML}
+      flags={{
+        showCorrectness: true,
+        readOnly: false,
+        solutionDisplayMode: solutionDisplayMode,
+        showFeedback: true,
+        showHints: true,
+      }}
+      attemptNumber={attemptNumber}
+      assignmentId={assignmentId}
+      ignoreDatabase={false}
+      requestedVariant={requestedVariant}
+      /> 
 }
 
 const editorInitAtom = atom({
