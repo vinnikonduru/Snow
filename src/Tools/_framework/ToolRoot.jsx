@@ -7,6 +7,7 @@ import {
 } from 'recoil';
 import Assignment from './Overlays/Assignment';
 import Editor from './Overlays/Editor';
+import Content from './Overlays/Content';
 import Calendar from './Overlays/Calendar';
 import Image from './Overlays/Image';
 import Toast from './Toast';
@@ -41,6 +42,17 @@ export const useToolControlHelper = () => {
             branchId={branchId}
             title={title}
             key={`EditorLayer${old.length + 1}`}
+          />,
+        ]);
+        break;
+        case 'content':
+        setLayers((old) => [
+          ...old,
+          <Content
+            contentId={contentId}
+            branchId={branchId}
+            title={title}
+            key={`ContentLayer${old.length + 1}`}
           />,
         ]);
         break;
