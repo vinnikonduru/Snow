@@ -21,6 +21,7 @@ export const useToolControlHelper = () => {
   const activateSupportPanel = useSupportDividerController();
 
   const Assignment = lazy(() => import('./Overlays/Assignment'));
+  const Content = lazy(() => import('./Overlays/Content'));
   const Editor = lazy(() => import('./Overlays/Editor'));
   const Image = lazy(() => import('./Overlays/Image'));
   const Calendar = lazy(() => import('./Overlays/Calendar'));
@@ -51,6 +52,7 @@ export const useToolControlHelper = () => {
             contentId={contentId}
             branchId={branchId}
             title={title}
+            courseId={courseId}
             key={`ContentLayer${old.length + 1}`}
           />,
         ]);
