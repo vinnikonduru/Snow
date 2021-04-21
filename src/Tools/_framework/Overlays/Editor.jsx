@@ -512,8 +512,7 @@ function DoenetViewerPanel(){
   let requestedVariant = { index: attemptNumber }
   let assignmentId = "myassignmentid";
   let solutionDisplayMode = "button";
-
-  return null
+  
   return <DoenetViewer
       key={"doenetviewer" + viewerDoenetML?.updateNumber}
       doenetML={viewerDoenetML?.doenetML}
@@ -525,8 +524,8 @@ function DoenetViewerPanel(){
         showHints: true,
       }}
       attemptNumber={attemptNumber}
-      assignmentId={assignmentId}
-      ignoreDatabase={false}
+      // assignmentId={assignmentId}
+      ignoreDatabase={true}
       requestedVariant={requestedVariant}
       /> 
 }
@@ -567,7 +566,7 @@ export default function Editor({ branchId, title }) {
 
       <mainPanel>
         <div><DoenetViewerUpdateButton  /></div>
-        {/* <div style={{overflowY:"scroll", height:"calc(100vh - 84px)" }}><DoenetViewerPanel /></div> */}
+        <div style={{overflowY:"scroll", height:"calc(100vh - 84px)" }}><DoenetViewerPanel /></div>
       </mainPanel>
 
       <supportPanel isInitOpen>
