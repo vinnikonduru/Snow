@@ -63,8 +63,7 @@ function Container(props){
   style={{
       maxWidth: "850px",
       // border: "1px red solid",
-      padding: "20px",
-      display:"grid"
+      margin: "20px",
   }
   }
   >
@@ -857,6 +856,7 @@ export default function Library(props) {
   const history = useHistory();
 
   const profile = useContext(ProfileContext)
+console.log(">>>profile",profile)
 
   if (profile.signedIn === "0"){
     return (<>
@@ -869,7 +869,7 @@ export default function Library(props) {
       <mainPanel>
         <div style={{margin:"10px"}}>
           <h1>You are not signed in</h1>
-          <h2>Library currently requirers sign in for use</h2> 
+          <h2>Library currently requires sign in for use</h2> 
           <h2><a href='/signin'>Sign in with this link</a></h2>
           </div>
       </mainPanel>
@@ -921,9 +921,9 @@ export default function Library(props) {
       <headerPanel title="Library">
       </headerPanel>
 
-      <mainPanel responsiveControls={breadcrumbContainer}> 
+      <mainPanel > 
       <AutoSelect />
-
+      {breadcrumbContainer}
         <div 
         onClick={()=>{
           clearSelections()
