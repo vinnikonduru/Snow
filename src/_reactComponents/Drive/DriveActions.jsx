@@ -914,6 +914,22 @@ export const useRenameItem = () => {
 
 export const useAssignmentCallbacks = () => {
   const [addToast, ToastType] = useToast();
+
+  const makeAssignment = useRecoilCallback(({set})=> 
+  ({driveIdFolderId, itemId, payload})=>{
+    set(folderDictionary(driveIdFolderId),(old)=>{
+      let newObj = JSON.parse(JSON.stringify(old));
+      let newItemObj = newObj.contentsDictionary[itemId];          
+      newItemObj.isAssignment = "1";
+      newItemObj.assignmentId = payload?.assignmentId;
+      return newObj;
+    })
+  }
+)
+
+const onmakeAssignmentError = ({errorMessage=null}) => {
+  addToast(`make assignment error: ${errorMessage}`, ToastType.ERROR);
+}
   const publishAssignment = useRecoilCallback(({set})=> 
     ({driveIdFolderId, itemId, payload})=>{
       set(folderDictionary(driveIdFolderId),(old)=>{
@@ -981,6 +997,8 @@ export const useAssignmentCallbacks = () => {
   }
 
   return { 
+    makeAssignment,
+    onmakeAssignmentError,
     publishAssignment, 
     onPublishAssignmentError,
     publishContent,
