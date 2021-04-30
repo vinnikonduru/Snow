@@ -15,7 +15,19 @@ $driveId = mysqli_real_escape_string($conn,$_REQUEST["driveId"]);
 $init = mysqli_real_escape_string($conn,$_REQUEST["init"]);
 
 $success = TRUE;
+$message = "";
 $results_arr = array();
+
+//note: not currently using $parentId
+if ($driveId == ""){
+  $success = FALSE;
+  $message = 'Internal Error: missing driveId';
+}elseif ($userId == ""){
+  $success = FALSE;
+  $message = "You need to be signed in to learn of drive users";
+}
+
+
 //make sure the user is supposed to have drive read access
 $sql = "
 SELECT 
@@ -201,7 +213,8 @@ ON dc.assignmentId = a.assignmentId
 $response_arr = array(
   "results"=>$results_arr,
   "perms"=>$perms,
-  "success"=>$success
+  "success"=>$success,
+  "message"=>$message
   );
 
 // set response code - 200 OK

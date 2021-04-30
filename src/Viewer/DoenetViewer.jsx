@@ -42,7 +42,7 @@ export function serializedComponentsReviver(key, value) {
 }
 
 
-class DoenetViewer extends Component {
+class DoenetViewerChild extends Component {
   constructor(props) {
     super(props);
     this.update = this.update.bind(this);
@@ -215,11 +215,11 @@ class DoenetViewer extends Component {
 
     let renderPromises = [];
     let rendererClassNames = [];
-    console.log('rendererTypesInDocument');
-    console.log(this.core.rendererTypesInDocument);
+    // console.log('rendererTypesInDocument');
+    // console.log(this.core.rendererTypesInDocument);
     for (let rendererClassName of this.core.rendererTypesInDocument) {
       rendererClassNames.push(rendererClassName);
-      console.log(`>>>dynamic import '${rendererClassName}'`)
+      // console.log(`>>>dynamic import '${rendererClassName}'`)
       renderPromises.push(import(`./renderers/${rendererClassName}.js`));
     }
 
@@ -313,16 +313,11 @@ class DoenetViewer extends Component {
 
   loadDoenetML(contentId, callback) {
 
-    const loadFromContentIdUrl = '/api/loadFromContentId.php';
-    const data = {
-      contentId,
-    }
-
-    axios.post(loadFromContentIdUrl, data)
+    axios.get(`/media/${contentId}.doenet`)
       .then(resp => {
         if (callback) {
           callback({
-            contentId, doenetML: resp.data.doenetML,
+            contentId, doenetML: resp.data,
           })
         }
       });
@@ -473,6 +468,34 @@ class DoenetViewer extends Component {
     return this.documentRenderer;
   }
 
+}
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { 
+      hasError: false,
+      errorMsg: "" };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { 
+      hasError: true,
+      errorMsg: error.toString()
+     };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <b>{this.state.errorMsg}</b>;
+    }
+
+    return this.props.children; 
+  }
+}
+
+function DoenetViewer(props){
+  return <ErrorBoundary><DoenetViewerChild {...props} /></ErrorBoundary>
 }
 
 export default DoenetViewer;
