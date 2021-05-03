@@ -14,6 +14,7 @@ $assignmentId = mysqli_real_escape_string($conn,$_POST["assignmentId"]);
 $contentId = mysqli_real_escape_string($conn,$_POST["contentId"]);
 $courseId = mysqli_real_escape_string($conn,$_POST["courseId"]);
 $branchId = mysqli_real_escape_string($conn,$_POST["branchId"]);
+$itemId = mysqli_real_escape_string($conn,$_POST["itemId"]);
 
 
 $sql="
