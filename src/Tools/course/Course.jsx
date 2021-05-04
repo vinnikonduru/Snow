@@ -301,16 +301,6 @@ export default function Course(props) {
                       assignmentId:info.item.assignmentId,
                      
                     });
-                    // openOverlay({
-                    //   type: 'materials',
-                    //   branchId: info.item.branchId,
-                    //   contentId: info.item.contentId,
-                    //   courseId: courseId,
-                    //   driveId: routePathDriveId,
-                    //   folderId: routePathFolderId,
-                    //   itemId: info.item.itemId,
-                    //   title: info.item.label,
-                    // });
                   }}
                 />
               </Container>
@@ -347,7 +337,7 @@ export default function Course(props) {
       </mainPanel>
       {routePathDriveId && (
         <menuPanel isInitOpen title="Selected">
-          <ItemInfo />
+          <ItemInfo route={props.route}/>
           <br /><br />
           {/* <MaterialsInfo
            itemType={itemType} courseId={courseId} pathItemId={pathItemId} routePathDriveId={routePathDriveId} routePathFolderId={routePathFolderId} /> */}
@@ -359,345 +349,19 @@ export default function Course(props) {
 }
 
 
-const AssignmentForm = (props) => {
 
-  const {
-    addContentAssignment,
-    changeSettings,
-    saveSettings,
-    assignmentToContent,
-    loadAvailableAssignment,
-    publishContentAssignment,
-    onAddAssignmentError,
-  } = useAssignment();
-  const {
-    makeAssignment,
-    onmakeAssignmentError,
-    publishAssignment,
-    onPublishAssignmentError,
-    publishContent,
-    onPublishContentError,
-    updateAssignmentTitle,
-    onUpdateAssignmentTitleError,
-    convertAssignmentToContent,
-    onConvertAssignmentToContentError,
-  } = useAssignmentCallbacks();
-  let courseId = props.courseId;
-  // let itemType = props.itemType;
-  let assignmentId = props.aInfo.assignmentId;
-  let isAssignment = props.aInfo.isAssignment;
-  let assignment_isPublished = props.aInfo.assignment_isPublished;
-
-  let itemId = props.itemId;
-  let driveId = props.driveId;
-  let folderId = props.folderId;
-  // let branchId = props.branchId;
-  let aInfo = props.aInfo;
-
-  const role = useRecoilValue(roleAtom);
-
-  const [folderInfoObj, setFolderInfo] = useRecoilStateLoadable(
-    folderDictionarySelector({ driveId: driveId, folderId: folderId }),
-  );
-  let branchId = '';
-  if (folderInfoObj?.state === 'hasValue') {
-    let itemInfo = folderInfoObj?.contents?.contentsDictionary[itemId];
-    if (itemInfo?.itemType === 'DoenetML') {
-      branchId = itemInfo.branchId;
-    }
-  }
-
-  const handleChange = (event) => {
-    event.preventDefault();
-    let name = event.target.name;
-    let value =
-      event.target.type === 'checkbox'
-        ? event.target.checked
-        : event.target.value;
-  
-    const result = changeSettings({
-      [name]: value,
-      driveIdcourseIditemIdparentFolderId: {
-        driveId: driveId,
-        folderId: folderId,
-        itemId: itemId,
-        courseId: courseId,
-        branchId: branchId,
-        contentId: contentId,
-      },
-    });
-    result
-      .then((resp) => {
-        if (resp.data.success) {
-          // addToast(`Renamed item to '${newLabel}'`, ToastType.SUCCESS);
-        } else {
-          // onRenameItemError({errorMessage: resp.data.message});
-        }
-      })
-      .catch((e) => {
-        // onRenameItemError({errorMessage: e.message});
-      });
-  };
-  const handleOnBlur = (e) => {
-    let name = e.target.name;
-    let value =
-      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    const result = saveSettings({
-      [name]: value,
-      driveIdcourseIditemIdparentFolderId: {
-        driveId: driveId,
-        folderId: folderId,
-        itemId: itemId,
-        courseId: courseId,
-        branchId: branchId,
-        contentId: contentId,
-      },
-    });
-  };
-
-
-  return (role === 'Instructor' && isAssignment === '1') ||
-    assignment_isPublished === '1' ? (
-    <>
-      {
-        <>
-          <div>
-            <label>Assignment Name :</label>
-            <input
-              required
-              type="text"
-              name="assignment_title"
-              value={aInfo ? aInfo?.assignment_title : ''}
-              placeholder="Title goes here"
-              onBlur={(e) => handleOnBlur(e)}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Assigned Date:</label>
-            <input
-              required
-              type="text"
-              name="assignedDate"
-              value={aInfo ? aInfo?.assignedDate : ''}
-              placeholder="0001-01-01 01:01:01 "
-              onBlur={() => handleOnBlur()}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Due date: </label>
-            <input
-              required
-              type="text"
-              name="dueDate"
-              value={aInfo ? aInfo?.dueDate : ''}
-              placeholder="0001-01-01 01:01:01"
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label>Time Limit:</label>
-            <input
-              required
-              type="time"
-              name="timeLimit"
-              value={aInfo ? aInfo?.timeLimit : ''}
-              placeholder="01:01:01"
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Number Of Attempts:</label>
-            <input
-              required
-              type="number"
-              name="numberOfAttemptsAllowed"
-              value={aInfo ? aInfo?.numberOfAttemptsAllowed : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Attempt Aggregation :</label>
-            <input
-              required
-              type="text"
-              name="attemptAggregation"
-              value={aInfo ? aInfo?.attemptAggregation : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Total Points Or Percent: </label>
-            <input
-              required
-              type="number"
-              name="totalPointsOrPercent"
-              value={aInfo ? aInfo?.totalPointsOrPercent : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Grade Category: </label>
-            <input
-              required
-              type="select"
-              name="gradeCategory"
-              value={aInfo ? aInfo?.gradeCategory : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Individualize: </label>
-            <input
-              required
-              type="checkbox"
-              name="individualize"
-              value={aInfo ? aInfo?.individualize : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Multiple Attempts: </label>
-            <input
-              required
-              type="checkbox"
-              name="multipleAttempts"
-              value={aInfo ? aInfo?.multipleAttempts : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Show solution: </label>
-            <input
-              required
-              type="checkbox"
-              name="showSolution"
-              value={aInfo ? aInfo?.showSolution : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Show feedback: </label>
-            <input
-              required
-              type="checkbox"
-              name="showFeedback"
-              value={aInfo ? aInfo?.showFeedback : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Show hints: </label>
-            <input
-              required
-              type="checkbox"
-              name="showHints"
-              value={aInfo ? aInfo?.showHints : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Show correctness: </label>
-            <input
-              required
-              type="checkbox"
-              name="showCorrectness"
-              value={aInfo ? aInfo?.showCorrectness : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Proctor make available: </label>
-            <input
-              required
-              type="checkbox"
-              name="proctorMakesAvailable"
-              value={aInfo ? aInfo?.proctorMakesAvailable : ''}
-              onBlur={handleOnBlur}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <Button
-              value="Publish assignment"
-              switch_value="publish changes"
-              callback={() => {
-                const payload = {
-                  ...aInfo,
-                  assignmentId: assignmentId,
-                  assignment_isPublished: '1',
-                  courseId: courseId,
-                  branchId: branchId,
-                };
-                publishAssignment({
-                  driveIdFolderId: {
-                    driveId: driveId,
-                    folderId: folderId,
-                  },
-                  itemId: itemId,
-                  payload: payload,
-                });
-                const result = publishContentAssignment(payload);
-                // if(result){
-                //   setAssignmentForm(result);
-                // }
-                result.then((resp) => {
-                  if (resp) {
-                    // addToast(`Add new assignment 'Untitled assignment'`, ToastType.SUCCESS);
-                    // setAssignmentForm(resp) TODO
-                  }
-                  // else{
-                  //   onAddAssignmentError({errorMessage: resp.data.message});
-                  // }
-                });
-                // .catch( e => {
-                //   onAddAssignmentError({errorMessage: e.message});
-                // })
-              }}
-              type="submit"
-            ></Button>
-            <br />
-          </div>
-          <div></div>
-          <div></div>
-        </>
-      }
-    </>
-  ) : (
-    <div>
-      {role === 'Student' &&
-        isAssignment === '1' &&
-        assignment_isPublished ===
-          '1'(
-            <div>
-              <h1>{aInfo?.assignment_title}</h1>
-              <p>Due: {aInfo?.dueDate}</p>
-              <p>Time Limit: {aInfo?.timeLimit}</p>
-              <p>
-                Number of Attempts Allowed: {aInfo?.numberOfAttemptsAllowed}
-              </p>
-              <p>Points: {aInfo?.totalPointsOrPercent}</p>
-            </div>,
-          )}
-    </div>
-  );
-};
 
 const DoenetMLInfoPanel = (props) =>{
+
+  let urlParamsObj = Object.fromEntries(
+    new URLSearchParams(props.props.route.location.search),
+  );
+
+  let courseId = '';
+  if (urlParamsObj?.courseId !== undefined) {
+    courseId = urlParamsObj?.courseId;
+  }
+
   const {
     addContentAssignment,
     changeSettings,
@@ -705,7 +369,7 @@ const DoenetMLInfoPanel = (props) =>{
     assignmentToContent,
     loadAvailableAssignment,
     publishContentAssignment,
-    onAddAssignmentError,
+    onAssignmentError,
   } = useAssignment();
   const {
     makeAssignment,
@@ -720,23 +384,20 @@ const DoenetMLInfoPanel = (props) =>{
     onConvertAssignmentToContentError,
   } = useAssignmentCallbacks();
 
-  console.log(">>>>>>>> DoenetMLInfoPanel props",props);
   const itemInfo = props.contentInfo;
-console.log(">>>>>>>itemInfo in doenetML",itemInfo);
   const assignmentInfoSettings = useRecoilValueLoadable(assignmentDictionarySelector(
     {driveId:itemInfo.driveId,
       folderId:itemInfo.parentFolderId,
       itemId:itemInfo.itemId,
-      courseId:"nrMXSKxcxOesa1BpAC2pH"}
+      courseId:courseId}
     ));
-  console.log(">>>>>>assignmentInfoSettings",assignmentInfoSettings);
 
   let aInfo = '';
   let assignmentId = '';
 
   if (assignmentInfoSettings?.state === 'hasValue') {
     aInfo = assignmentInfoSettings?.contents;
-    console.log(">>>>>>>>>>>>ainfo in doenetInfopanel",aInfo);
+    console.log(">>>>>>here @@@@@@@@@@@@@@@@",aInfo);
     if (aInfo?.assignmentId) {
       assignmentId = aInfo?.assignmentId;
     }
@@ -763,7 +424,7 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
         driveId: itemInfo.driveId,
         folderId: itemInfo.parentFolderId,
         itemId: itemInfo.itemId,
-        courseId: "nrMXSKxcxOesa1BpAC2pH",
+        courseId: courseId,
        
       },
     });
@@ -789,10 +450,28 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
         driveId: itemInfo.driveId,
         folderId: itemInfo.parentFolderId,
         itemId: itemInfo.itemId,
-        courseId: "nrMXSKxcxOesa1BpAC2pH",
-       
+        courseId: courseId
       },
     });
+     let payload = {
+      itemId: itemInfo.itemId,
+      isAssignment: '1',
+      assignmentId:aInfo?.assignmentId,
+      [name]: value,
+    };
+    console.log(">>>>>>>>>>. update title payload",payload);
+    if(name === 'assignment_title'){
+      updateAssignmentTitle({
+        driveIdFolderId: {
+          driveId: itemInfo.driveId,
+          folderId: itemInfo.parentFolderId,
+        },
+        itemId: itemInfo.itemId,
+        payloadAssignment: payload,
+      });
+    }
+   
+
   };
   const handlePublishContent = () => {
     let payload = {
@@ -819,7 +498,15 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
     axios.post(`/api/handleMakeContent.php`, payload).then((response) => {
       console.log(response.data);
     });
-    assignmentToContent();
+    assignmentToContent({
+
+      driveIdcourseIditemIdparentFolderId:{
+        driveId: itemInfo.driveId,
+        folderId: itemInfo.parentFolderId,
+        itemId: itemInfo.itemId,
+        courseId: courseId,
+      }
+    });
     // setAssignmentForm((old)=>{   //TODO remove
     //   return  {...old, [isAssignment]: 0}
     // })
@@ -832,6 +519,38 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
       assignedDataSavenew: payload,
     });
   };
+
+    const loadBackAssignment = () => {
+    let payload = {
+      itemId: itemInfo.itemId,
+      isAssignment: '1',
+      assignmentId:aInfo?.assignmentId,
+      title:aInfo?.assignment_title
+    };
+    axios.post(`/api/handleBackAssignment.php`, payload).then((response) => {
+      console.log(response.data);
+    });
+
+    loadAvailableAssignment({
+      ...aInfo,
+      driveIdcourseIditemIdparentFolderId:{
+        driveId: itemInfo.driveId,
+        folderId: itemInfo.parentFolderId,
+        itemId: itemInfo.itemId,
+        courseId: courseId,
+      }
+      
+    });
+
+    updateAssignmentTitle({
+      driveIdFolderId: {
+        driveId: itemInfo.driveId,
+        folderId: itemInfo.parentFolderId,
+      },
+      itemId: itemInfo.itemId,
+      payloadAssignment: payload,
+    });
+  };
   // // Publish content
   if(itemInfo?.isPublished === '0'){
     publishContentButton = <>
@@ -842,17 +561,12 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
       />
     </>
   }
-  //   // un Publish content
-  //   else if(itemInfo.isPublished === '1'){
-  //     unPublishContentButton = <>
-  //     <Button value="un Publish Content" callback={()=>{
-  //       alert("un Publish content")}} />
-  //     </>
-  //   }
+
 
   // Make assignment
   const [showAForm, setShowAForm] = useState(false);
   const role = useRecoilValue(roleAtom);
+  const [addToast, ToastType] = useToast();
 
    if(itemInfo?.isAssignment === '0' && itemInfo.assignmentId === null){
     makeAssignmentButton = <>
@@ -861,12 +575,13 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
           callback={() => {
             let assignmentId = nanoid();
             setShowAForm(true);
+
             const result = addContentAssignment({
               driveIdcourseIditemIdparentFolderId: {
                 driveId: itemInfo.driveId,
                 folderId: itemInfo.parentFolderId,
                 itemId: itemInfo.itemId,
-                courseId: "nrMXSKxcxOesa1BpAC2pH",
+                courseId: courseId,
               },
               branchId:itemInfo.branchId,
               contentId:itemInfo.contentId ? itemInfo.contentId : itemInfo.branchId,
@@ -875,7 +590,7 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
             let payload = {
               ...aInfo,
               itemId: itemInfo.itemId,
-              assignment_title:aInfo?.assignment_title,
+              assignment_title:"Untitled Assignment",
               assignmentId:assignmentId,
               isAssignment:'1',
               branchId: itemInfo.branchId,
@@ -891,17 +606,14 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
             });
             result.then((resp) => {
               if (resp) {
-                
-                // addToast(`Add new assignment 'Untitled assignment'`, ToastType.SUCCESS);
-                // setAssignmentForm(resp) TODO
+                addToast(`Add new assignment 'Untitled assignment'`, ToastType.SUCCESS);
               }
-              // else{
-              //   onAddAssignmentError({errorMessage: resp.data.message});
-              // }
-            });
-            // .catch( e => {
-            //   onAddAssignmentError({errorMessage: e.message});
-            // })
+              else{
+                onAssignmentError({errorMessage: resp.data.message});
+              }
+            }).catch( e => {
+              onAssignmentError({errorMessage: e.message});
+            })
           }}
         />
     </>
@@ -1088,29 +800,37 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
             />
           </div>
           <div>
-            <Button
-              value="Publish assignment"
+          <Button
+              value="Publish assignment new"
               switch_value="publish changes"
               callback={() => {
+                const result = publishContentAssignment({
+                  driveIdcourseIditemIdparentFolderId: {
+                    driveId: itemInfo.driveId,
+                    folderId: itemInfo.parentFolderId,
+                    itemId: itemInfo.itemId,
+                    courseId: courseId,
+                  },
+                   branchId:itemInfo.branchId,
+                   contentId:itemInfo.contentId ? itemInfo.contentId : itemInfo.branchId,
+                  assignmentId: assignmentId,
+                })
                 const payload = {
                   ...aInfo,
                   assignmentId: assignmentId,
                   assignment_isPublished: '1',
                   courseId: courseId,
-                  branchId: branchId,
+                  branchId:itemInfo.branchId,
                 };
                 publishAssignment({
                   driveIdFolderId: {
-                    driveId: driveId,
-                    folderId: folderId,
+                    driveId: itemInfo.driveId,
+                    folderId: itemInfo.parentFolderId,
                   },
-                  itemId: itemId,
+                  itemId: itemInfo.itemId,
                   payload: payload,
                 });
-                const result = publishContentAssignment(payload);
-                // if(result){
-                //   setAssignmentForm(result);
-                // }
+               
                 result.then((resp) => {
                   if (resp) {
                     // addToast(`Add new assignment 'Untitled assignment'`, ToastType.SUCCESS);
@@ -1151,27 +871,19 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
           )}
     </div> */}
   {/* ); */}
-    
+    <br /><br />
+    {/* Make Assignment as content */}
+    <Button value="Make Content" callback={handleMakeContent} />
     </>
   }
 
-  // Make Assignment as content
-  else if(itemInfo.isAssignment === '1' && assignmentId
-  // 
-  ){  //TODO add assignmentId from ainfo
-    assignmentToContentButton = <>
-     <Button value="Make Content" callback={handleMakeContent} />
-    </>
-  }
 
    // Make Assignment Title update(Load back available assignment)
    else if(itemInfo.isAssignment === '0' 
   //  && itemInfo.assignmentId === assignmentId
    ){  //TODO add assignmentId from ainfo
     loadAssignmentButton = <>
-    <Button value="Load Assignment" callback={()=>{
-      alert("Load Assignment")
-    }}/>
+    <Button value="load Assignment" callback={loadBackAssignment} />
     </>
   }
 
@@ -1182,238 +894,30 @@ console.log(">>>>>>>itemInfo in doenetML",itemInfo);
   {publishContentButton}<br /> 
 
   {loadAssignmentButton}<br />
-  {assignmentToContentButton}<br />
+  {/* {assignmentToContentButton}<br /> */}
   {assignmentForm}
   {unPublishContentButton}
   </>
 }
 const FolderInfoPanel = () =>{
-  return "FolderInfoPanel"
+  return (
+    <>
+    Folder Info
+    </>
+  )
 }
 
-// const MaterialsInfo = (props) => {
-//   const {
-//     addContentAssignment,
-//     changeSettings,
-//     saveSettings,
-//     assignmentToContent,
-//     loadAvailableAssignment,
-//     publishContentAssignment,
-//     onAddAssignmentError,
-//   } = useAssignment();
-//   const {
-//     makeAssignment,
-//     onmakeAssignmentError,
-//     publishAssignment,
-//     onPublishAssignmentError,
-//     publishContent,
-//     onPublishContentError,
-//     updateAssignmentTitle,
-//     onUpdateAssignmentTitleError,
-//     convertAssignmentToContent,
-//     onConvertAssignmentToContentError,
-//   } = useAssignmentCallbacks();
 
 
 
-    
-//   const role = useRecoilValue(roleAtom);
-
-//   let itemId =contentInfo?.itemId;
-//   let branchId = contentInfo?.branchId;
-//   let contentId = contentInfo?.contentId;
-//   let assignmentId = contentInfo?.assignmentId;
-//   let isAssignment = contentInfo?.isAssignment;
-//   let assignment_isPublished =
-//   contentInfo?.assignment_isPublished;
-//   const handlePublishContent = () => {
-//     let payload = {
-//       itemId: itemId,
-//     };
-//     publishContent({
-//       driveIdFolderId: {
-//         driveId: props.routePathDriveId,
-//         folderId: props.routePathFolderId,
-//       },
-//       itemId: itemId,
-//       payload: payload,
-//     });
-
-//     axios.post(`/api/handlePublishContent.php`, payload).then((response) => {
-//       console.log(response.data);
-//     });
-//   };
-//   const [assignmentIdSettings, setAssignmentIdSettings]= useRecoilStateLoadable(assignmentDictionary);
-  
-//   useEffect(() => {
-//    return setAssignmentIdSettings('')
-//   }, []); 
-  
-//   let aInfo = '';
-//   if (assignmentIdSettings?.state === 'hasValue') {
-//     aInfo = assignmentIdSettings?.contents;
-//     console.log(">>>>>>>>>>>>here aInfo",aInfo);
-//     if (aInfo?.assignmentId) {
-//       assignmentId = aInfo?.assignmentId;
-//     }
-//   }
-
-//   const handleMakeContent = (e) => {
-//     let payload = {
-//       itemId: itemId,
-//     };
-//     axios.post(`/api/handleMakeContent.php`, payload).then((response) => {
-//       console.log(response.data);
-//     });
-//     assignmentToContent();
-//     // setAssignmentForm((old)=>{   //TODO remove
-//     //   return  {...old, [isAssignment]: 0}
-//     // })
-//     convertAssignmentToContent({
-//       driveIdFolderId: {
-//         driveId: routePathDriveId,
-//         folderId: routePathFolderId,
-//       },
-//       itemId: itemId,
-//       assignedDataSavenew: payload,
-//     });
-//   };
-
-
-
-//   const [showAForm, setShowAForm] = useState(false);
-
-//   const loadBackAssignment = () => {
-//     let payload = {
-//       itemId: itemId,
-//     };
-//     axios.post(`/api/handleBackAssignment.php`, payload).then((response) => {
-//       console.log(response.data);
-//     });
-
-//     loadAvailableAssignment({
-//       aInfo,
-//     });
-
-//     //    setFolderInfo({                                            //TODO
-//     //   instructionType: "assignment title update",
-//     //   itemId: itemId,
-//     //   payloadAssignment: aInfo,
-//     // });
-
-//     updateAssignmentTitle({
-//       driveIdFolderId: {
-//         driveId: routePathDriveId,
-//         folderId: routePathFolderId,
-//       },
-//       itemId: itemId,
-//       // payloadAssignment: {assignmentId:aInfo.assignmentId,title:aInfo.assignment_title},
-//     });
-//   };
-//   return (
-//     <>
-//       {assignment_isPublished != '1' && isAssignment === '0' ? (
-//         <>
-//         <br />
-//         <Button
-//           value="Make Assignment"
-//           callback={() => {
-//             let assignmentId = nanoid();
-//             setShowAForm(true);
-//             const result = addContentAssignment({
-//               driveIdcourseIditemIdparentFolderId: {
-//                 driveId: props.routePathDriveId,
-//                 folderId: props.routePathFolderId,
-//                 itemId: itemId,
-//                 courseId: props.courseId,
-//                 branchId: branchId,
-//                 contentId: contentId,
-//               },
-//               assignmentId: assignmentId,
-//             });
-//             result.then((resp) => {
-//               if (resp) {
-//                 let payload = {
-//                   ...aInfo,
-//                   itemId: itemId,
-//                   assignment_title:aInfo.assignment_title,
-//                   assignmentId:assignmentId,
-//                   isAssignment:'1',
-//                   branchId: branchId,
-//                 };
-              
-//                 makeAssignment({
-//                   driveIdFolderId: {
-//                     driveId: props.routePathDriveId,
-//                    folderId: props.routePathFolderId,
-//                   },
-//                   itemId: itemId,
-//                   payload: payload,
-//                 });
-//                 // addToast(`Add new assignment 'Untitled assignment'`, ToastType.SUCCESS);
-//                 // setAssignmentForm(resp) TODO
-//               }
-//               // else{
-//               //   onAddAssignmentError({errorMessage: resp.data.message});
-//               // }
-//             });
-//             // .catch( e => {
-//             //   onAddAssignmentError({errorMessage: e.message});
-//             // })
-//           }}
-//         />
-//         </>
-//       ) : (
-//         ' '
-//       )}
-//       <br />
-//       <br />
-//       <Button
-//         value="Publish Content"
-//         switch_value="Published"
-//         callback={handlePublishContent}
-//       />
-//       <br />
-//       { (role === 'Instructor' && assignmentId && isAssignment === '1') || assignment_isPublished === '1' ?
-//          <Button value="Make Content" callback={handleMakeContent} />
-//                 : " "}
-
-
-//       {(isAssignment === '1' || showAForm) && (
-//         <CollapseSection>
-//         <AssignmentForm
-//           itemType={props.itemType}
-//           courseId={props.courseId}
-//           driveId={props.routePathDriveId}
-//           folderId={props.routePathFolderId}
-//           branchId={props.branchId}
-//           assignmentId={assignmentId}
-//           aInfo={aInfo}
-//           itemId={props.itemId}
-//         />
-//         </CollapseSection>
-//       )}
-
-//       {role === 'Instructor' && assignmentId && isAssignment == '0' ? (
-//         <Button value="load Assignment" callback={loadBackAssignment} />
-//       ) : null}
-//     </>
-//   );
-// };
-
-
-
-
-const ItemInfo = () => {
+const ItemInfo = (props) => {
 
   const contentInfoLoad = useRecoilValueLoadable(selectedInformation);
-  console.log(">>>>>>>>>>>>>here again",contentInfoLoad);
   if (contentInfoLoad.state === "loading"){ return null;}
   if (contentInfoLoad.state === "hasError"){ 
     console.error(contentInfoLoad.contents)
     return null;}
     let contentInfo = contentInfoLoad?.contents?.itemInfo;
-    console.log(">>>>>>>>>contentInfo",contentInfo);
 
     if(contentInfoLoad.contents?.number > 1){
        return <>
@@ -1424,6 +928,7 @@ const ItemInfo = () => {
         return <DoenetMLInfoPanel 
         key={`DoenetMLInfoPanel${contentInfo.itemId}`}
         contentInfo = {contentInfo}
+        props={props}
         />
       }else if(contentInfo?.itemType === "Folder"){
         return <FolderInfoPanel 
@@ -1434,186 +939,5 @@ const ItemInfo = () => {
     }
     return null;
     
-  // const role = useRecoilValue(roleAtom);
-
-  // let itemId =contentInfo?.itemId;
-  // let branchId = contentInfo?.branchId;
-  // let contentId = contentInfo?.contentId;
-  // let assignmentId = contentInfo?.assignmentId;
-  // let isAssignment = contentInfo?.isAssignment;
-  // let assignment_isPublished =
-  // contentInfo?.assignment_isPublished;
-  // const handlePublishContent = () => {
-  //   let payload = {
-  //     itemId: itemId,
-  //   };
-  //   publishContent({
-  //     driveIdFolderId: {
-  //       driveId: props.routePathDriveId,
-  //       folderId: props.routePathFolderId,
-  //     },
-  //     itemId: itemId,
-  //     payload: payload,
-  //   });
-
-  //   axios.post(`/api/handlePublishContent.php`, payload).then((response) => {
-  //     console.log(response.data);
-  //   });
-  // };
-  // const [assignmentIdSettings, setAssignmentIdSettings]= useRecoilStateLoadable(assignmentDictionary);
-  
-  // useEffect(() => {
-  //  return setAssignmentIdSettings('')
-  // }, []); 
-  
-  // let aInfo = '';
-  // if (assignmentIdSettings?.state === 'hasValue') {
-  //   aInfo = assignmentIdSettings?.contents;
-  //   console.log(">>>>>>>>>>>>here aInfo",aInfo);
-  //   if (aInfo?.assignmentId) {
-  //     assignmentId = aInfo?.assignmentId;
-  //   }
-  // }
-
-  // const handleMakeContent = (e) => {
-  //   let payload = {
-  //     itemId: itemId,
-  //   };
-  //   axios.post(`/api/handleMakeContent.php`, payload).then((response) => {
-  //     console.log(response.data);
-  //   });
-  //   assignmentToContent();
-  //   // setAssignmentForm((old)=>{   //TODO remove
-  //   //   return  {...old, [isAssignment]: 0}
-  //   // })
-  //   convertAssignmentToContent({
-  //     driveIdFolderId: {
-  //       driveId: routePathDriveId,
-  //       folderId: routePathFolderId,
-  //     },
-  //     itemId: itemId,
-  //     assignedDataSavenew: payload,
-  //   });
-  // };
-
-
-
-  // const [showAForm, setShowAForm] = useState(false);
-
-  // const loadBackAssignment = () => {
-  //   let payload = {
-  //     itemId: itemId,
-  //   };
-  //   axios.post(`/api/handleBackAssignment.php`, payload).then((response) => {
-  //     console.log(response.data);
-  //   });
-
-  //   loadAvailableAssignment({
-  //     aInfo,
-  //   });
-
-  //   //    setFolderInfo({                                            //TODO
-  //   //   instructionType: "assignment title update",
-  //   //   itemId: itemId,
-  //   //   payloadAssignment: aInfo,
-  //   // });
-
-  //   updateAssignmentTitle({
-  //     driveIdFolderId: {
-  //       driveId: routePathDriveId,
-  //       folderId: routePathFolderId,
-  //     },
-  //     itemId: itemId,
-  //     // payloadAssignment: {assignmentId:aInfo.assignmentId,title:aInfo.assignment_title},
-  //   });
-  // };
-  // return (
-  //   <>
-  //     {assignment_isPublished != '1' && isAssignment === '0' ? (
-  //       <>
-  //       <br />
-  //       <Button
-  //         value="Make Assignment"
-  //         callback={() => {
-  //           let assignmentId = nanoid();
-  //           setShowAForm(true);
-  //           const result = addContentAssignment({
-  //             driveIdcourseIditemIdparentFolderId: {
-  //               driveId: props.routePathDriveId,
-  //               folderId: props.routePathFolderId,
-  //               itemId: itemId,
-  //               courseId: props.courseId,
-  //               branchId: branchId,
-  //               contentId: contentId,
-  //             },
-  //             assignmentId: assignmentId,
-  //           });
-  //           result.then((resp) => {
-  //             if (resp) {
-  //               let payload = {
-  //                 ...aInfo,
-  //                 itemId: itemId,
-  //                 assignment_title:aInfo.assignment_title,
-  //                 assignmentId:assignmentId,
-  //                 isAssignment:'1',
-  //                 branchId: branchId,
-  //               };
-              
-  //               makeAssignment({
-  //                 driveIdFolderId: {
-  //                   driveId: props.routePathDriveId,
-  //                  folderId: props.routePathFolderId,
-  //                 },
-  //                 itemId: itemId,
-  //                 payload: payload,
-  //               });
-  //               // addToast(`Add new assignment 'Untitled assignment'`, ToastType.SUCCESS);
-  //               // setAssignmentForm(resp) TODO
-  //             }
-  //             // else{
-  //             //   onAddAssignmentError({errorMessage: resp.data.message});
-  //             // }
-  //           });
-  //           // .catch( e => {
-  //           //   onAddAssignmentError({errorMessage: e.message});
-  //           // })
-  //         }}
-  //       />
-  //       </>
-  //     ) : (
-  //       ' '
-  //     )}
-  //     <br />
-  //     <br />
-  //     <Button
-  //       value="Publish Content"
-  //       switch_value="Published"
-  //       callback={handlePublishContent}
-  //     />
-  //     <br />
-  //     { (role === 'Instructor' && assignmentId && isAssignment === '1') || assignment_isPublished === '1' ?
-  //        <Button value="Make Content" callback={handleMakeContent} />
-  //               : " "}
-
-
-  //     {(isAssignment === '1' || showAForm) && (
-  //       <CollapseSection>
-  //       <AssignmentForm
-  //         itemType={props.itemType}
-  //         courseId={props.courseId}
-  //         driveId={props.routePathDriveId}
-  //         folderId={props.routePathFolderId}
-  //         branchId={props.branchId}
-  //         assignmentId={assignmentId}
-  //         aInfo={aInfo}
-  //         itemId={props.itemId}
-  //       />
-  //       </CollapseSection>
-  //     )}
-
-  //     {role === 'Instructor' && assignmentId && isAssignment == '0' ? (
-  //       <Button value="load Assignment" callback={loadBackAssignment} />
-  //     ) : null}
-  //   </>
-  // );
+ 
 };
